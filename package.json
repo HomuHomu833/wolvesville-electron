@@ -1,0 +1,54 @@
+{
+  "name": "wolvesville",
+  "version": "1.0.0",
+  "description": "Wolvesville",
+  "main": "main.js",
+  "author": "Homura",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "electron .",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.wolvesville.app",
+    "asar": true,
+    "npmRebuild": true,
+    "compression": "maximum",
+    "productName": "Wolvesville",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/**/*.{ts,map,md,test,mdx}",
+      "!**/test{,s}/**",
+      "!**/__tests__/**"
+    ],
+    "win": {
+      "target": [
+        "zip"
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": [
+        "zip"
+      ],
+      "category": "public.app-category.games",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": [
+        "zip"
+      ],
+      "icon": "assets/icon.png"
+    }
+  },
+  "devDependencies": {
+    "electron": "^39.1.1",
+    "electron-builder": "^24.6.0"
+  }
+}
