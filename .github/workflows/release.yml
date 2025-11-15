@@ -21,8 +21,7 @@ jobs:
 
       - name: Tar Linux x86_64 Build For Release
         run: |
-          ls /home/runner
-          cd /home/runner/Wolvesville-ubuntu-latest
+          cd /home/runner/Wolvesville-linux-x64
           tar czf "/home/runner/Wolvesville-linux-x86_64.tar" .
 
       - name: Download Linux ARM64 Build
@@ -33,7 +32,7 @@ jobs:
 
       - name: Tar Linux ARM64 Build For Release
         run: |
-          cd /home/runner/Wolvesville-ubuntu-24.04-arm
+          cd /home/runner/Wolvesville-linux-arm64
           tar czf "/home/runner/Wolvesville-linux-arm64.tar" .
 
       - name: Download macOS x86_64 Build
@@ -44,7 +43,7 @@ jobs:
 
       - name: Tar macOS x86_64 Build For Release
         run: |
-          cd /home/runner/Wolvesville-macos-15-intel
+          cd /home/runner/Wolvesville-darwin-x64
           tar czf "/home/runner/Wolvesville-macos-x86_64.tar" .
 
       - name: Download macOS ARM64 Build
@@ -55,7 +54,7 @@ jobs:
 
       - name: Tar macOS ARM64 Build For Release
         run: |
-          cd /home/runner/Wolvesville-macos-26
+          cd /home/runner/Wolvesville-darwin-arm64
           tar czf "/home/runner/Wolvesville-macos-arm64.tar" .
 
       - name: Download Windows x86_64 Build
@@ -66,7 +65,7 @@ jobs:
 
       - name: Zip Windows x86_64 Build For Release
         run: |
-          cd /home/runner/Wolvesville-windows-latest
+          cd /home/runner/Wolvesville-win32-x64
           zip -r "/home/runner/Wolvesville-windows-x86_64.zip" .
 
       - name: Download Windows ARM64 Build
@@ -77,7 +76,7 @@ jobs:
 
       - name: Zip Windows x86_64 Build For Release
         run: |
-          cd /home/runner/Wolvesville-windows-11-arm
+          cd /home/runner/Wolvesville-win32-arm64
           zip -r "/home/runner/Wolvesville-windows-arm64.zip" .
 
       - name: Publish The Release
