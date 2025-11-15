@@ -74,7 +74,7 @@ jobs:
           name: Wolvesville-windows-11-arm
           path: /home/runner/windowsBuild-x86_64
 
-      - name: Zip Windows x86_64 Build For Release
+      - name: Zip Windows ARM64 Build For Release
         run: |
           cd /home/runner/Wolvesville-win32-arm64
           zip -r "/home/runner/Wolvesville-windows-arm64.zip" .
