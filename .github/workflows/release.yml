@@ -21,6 +21,7 @@ jobs:
 
       - name: Tar Linux x86_64 Build For Release
         run: |
+          ls /home/runner
           cd /home/runner/Wolvesville-ubuntu-latest
           tar czf "/home/runner/Wolvesville-linux-x86_64.tar" .
 
