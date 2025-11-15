@@ -61,7 +61,7 @@ jobs:
         uses: actions/download-artifact@main
         with:
           name: Wolvesville-windows-latest
-          path: /home/runner/windowsBuild-x86_64
+          path: /home/runner
 
       - name: Zip Windows x86_64 Build For Release
         run: |
@@ -72,7 +72,7 @@ jobs:
         uses: actions/download-artifact@main
         with:
           name: Wolvesville-windows-11-arm
-          path: /home/runner/windowsBuild-x86_64
+          path: /home/runner
 
       - name: Zip Windows ARM64 Build For Release
         run: |
