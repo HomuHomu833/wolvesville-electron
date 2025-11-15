@@ -22,6 +22,8 @@ const createWindow = () => {
     fullscreen: true,
     icon: path.join(__dirname, 'src', 'icons', isWindows ? 'icon.ico' : 'icon.ics'),
     autoHideMenuBar: true,
+    contextIsolation: true,
+    nodeIntegration: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     }
@@ -37,6 +39,8 @@ const createWindow = () => {
       width: 800,
       height: 600,
       autoHideMenuBar: true,
+      contextIsolation: true,
+      nodeIntegration: false
     },
   }));
 
