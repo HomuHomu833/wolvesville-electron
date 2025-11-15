@@ -1,3 +1,15 @@
-node_modules
+# js
+node_modules/
 package-lock.json
-dist
+npm-debug.*
+yarn-error.log
+
+# macos
+.DS_Store
+
+# ide
+*.iml
+.idea
+*.swp
+
+out/

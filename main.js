@@ -1,51 +1,61 @@
-import { app, session, BrowserWindow } from 'electron';
+import { app, ipcMain, BrowserWindow } from 'electron';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { platform } from 'os';
 
-function createMainWindow() {
-  const mainWin = new BrowserWindow({
+// fix __dirname for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.commandLine.appendSwitch('in-process-gpu');
+app.commandLine.appendSwitch('disable-direct-composition');
+
+app.allowRendererProcessReuse = false;
+
+const isWindows = platform() === 'win32';
+
+const createWindow = () => {
+  const win = new BrowserWindow({
     width: 1280,
     height: 720,
-    maximize: true,
+    title: 'Wolvesville',
+    fullscreen: true,
+    icon: path.join(__dirname, 'src', 'icons', isWindows ? 'icon.ico' : 'icon.ics'),
     autoHideMenuBar: true,
-    experimentalFeatures: true, // idk honestly maybe req?
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      sandbox: false
+      preload: path.join(__dirname, 'preload.js'),
     }
   });
 
-  mainWin.loadURL('https://wolvesville.com');
+  // win.loadURL('http://localhost:3002');
+  win.loadURL('https://www.wolvesville.com');
 
-  mainWin.webContents.setWindowOpenHandler(({ url }) => {
-    return {
-      action: 'allow',
-      overrideBrowserWindowOptions: {
-        width: 800,
-        height: 600,
-        autoHideMenuBar: true,
-        experimentalFeatures: true, // idk honestly maybe req?
-        webPreferences: {
-          nodeIntegration: false,
-          contextIsolation: true,
-          sandbox: false
-        }
-      }
-    };
+  // added by Homura Akemi (HomuHomu833)
+  win.webContents.setWindowOpenHandler(({}) => ({
+    action: 'allow',
+    overrideBrowserWindowOptions: {
+      width: 800,
+      height: 600,
+      autoHideMenuBar: true,
+    },
+  }));
+
+  return win;
+};
+
+app.whenReady().then(() => {
+  createWindow();
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 
-  // does not work...
-  /*session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
-    if (permission === 'notifications') {
-      callback(true);
-    } else {
-      callback(false);
-    }
-  });*/
+  ipcMain.on('EXIT_GAME', () => {
+    app.exit();
+  });
 
-}
-
-app.whenReady().then(createMainWindow);
+});
 
 app.on('window-all-closed', () => {
-  app.quit();
+  if (process.platform !== 'darwin') app.quit();
 });

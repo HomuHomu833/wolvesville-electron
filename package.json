@@ -1,54 +1,26 @@
 {
   "name": "wolvesville",
   "version": "1.0.0",
-  "description": "Wolvesville",
   "main": "main.js",
-  "author": "Homura",
   "type": "module",
   "license": "MIT",
+  "author": "Wolvesville GmbH & Co. KG",
+  "description": "Online social deduction game about werewolves for up to 16 players. Available on mobile and PC!",
   "scripts": {
-    "test": "electron .",
-    "build:win": "electron-builder --win",
-    "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux"
-  },
-  "build": {
-    "appId": "com.wolvesville.app",
-    "asar": true,
-    "npmRebuild": true,
-    "compression": "maximum",
-    "productName": "Wolvesville",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "**/*",
-      "!node_modules/**/*.{ts,map,md,test,mdx}",
-      "!**/test{,s}/**",
-      "!**/__tests__/**"
-    ],
-    "win": {
-      "target": [
-        "zip"
-      ],
-      "icon": "assets/icon.ico"
-    },
-    "mac": {
-      "target": [
-        "zip"
-      ],
-      "category": "public.app-category.games",
-      "icon": "assets/icon.icns"
-    },
-    "linux": {
-      "target": [
-        "zip"
-      ],
-      "icon": "assets/icon.png"
-    }
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "devDependencies": {
-    "electron": "^39.1.1",
-    "electron-builder": "^24.6.0"
+    "@electron-forge/cli": "^7.3.0",
+    "@electron-forge/maker-deb": "^7.3.0",
+    "@electron-forge/maker-rpm": "^7.3.0",
+    "@electron-forge/maker-squirrel": "^7.3.0",
+    "@electron-forge/maker-zip": "^7.3.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.3.0",
+    "electron": "^39.2.0"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0"
   }
 }
