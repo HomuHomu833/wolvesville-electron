@@ -9,7 +9,6 @@ const __dirname = path.dirname(__filename);
 
 app.commandLine.appendSwitch('in-process-gpu');
 app.commandLine.appendSwitch('disable-direct-composition');
-
 app.allowRendererProcessReuse = false;
 
 const isWindows = platform() === 'win32';
@@ -63,3 +62,4 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
+
