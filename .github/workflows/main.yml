@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-26, windows-latest, ubuntu-24.04-arm, windows-11-arm]
+        os: [ubuntu-latest, macos-26, macos-15-intel, windows-latest, ubuntu-24.04-arm, windows-11-arm]
     steps:
       - name: Checkout
         uses: actions/checkout@main
@@ -26,3 +26,9 @@ jobs:
 
       - name: Build Package
         run: npm run package
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: Wolvesville-${{ matrix.os }}
+          path: out/Wolvesville-*-*/*
