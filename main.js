@@ -10,7 +10,7 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: true
+      sandbox: false
     }
   });
 
@@ -27,15 +27,21 @@ function createMainWindow() {
         webPreferences: {
           nodeIntegration: false,
           contextIsolation: true,
-          sandbox: true
+          sandbox: false
         }
       }
     };
   });
 
-  session.defaultSession.setPermissionRequestHandler((permission, callback) => {
-    if (permission === 'notifications') callback(true); // does not work...
-  });
+  // does not work...
+  /*session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+    if (permission === 'notifications') {
+      callback(true);
+    } else {
+      callback(false);
+    }
+  });*/
+
 }
 
 app.whenReady().then(createMainWindow);
