@@ -1,0 +1,90 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/main.yml
+
+  releaser:
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Download Linux x86_64 Build
+        uses: actions/download-artifact@main
+        with:
+          name: Wolvesville-ubuntu-latest
+          path: /home/runner
+
+      - name: Tar Linux x86_64 Build For Release
+        run: |
+          cd /home/runner/Wolvesville-ubuntu-latest
+          tar czf "/home/runner/Wolvesville-linux-x86_64.tar" .
+
+      - name: Download Linux ARM64 Build
+        uses: actions/download-artifact@main
+        with:
+          name: Wolvesville-ubuntu-24.04-arm
+          path: /home/runner
+
+      - name: Tar Linux ARM64 Build For Release
+        run: |
+          cd /home/runner/Wolvesville-ubuntu-24.04-arm
+          tar czf "/home/runner/Wolvesville-linux-arm64.tar" .
+
+      - name: Download macOS x86_64 Build
+        uses: actions/download-artifact@main
+        with:
+          name: Wolvesville-macos-15-intel
+          path: /home/runner
+
+      - name: Tar macOS x86_64 Build For Release
+        run: |
+          cd /home/runner/Wolvesville-macos-15-intel
+          tar czf "/home/runner/Wolvesville-macos-x86_64.tar" .
+
+      - name: Download macOS ARM64 Build
+        uses: actions/download-artifact@main
+        with:
+          name: Wolvesville-macos-26
+          path: /home/runner
+
+      - name: Tar macOS ARM64 Build For Release
+        run: |
+          cd /home/runner/Wolvesville-macos-26
+          tar czf "/home/runner/Wolvesville-macos-arm64.tar" .
+
+      - name: Download Windows x86_64 Build
+        uses: actions/download-artifact@main
+        with:
+          name: Wolvesville-windows-latest
+          path: /home/runner/windowsBuild-x86_64
+
+      - name: Zip Windows x86_64 Build For Release
+        run: |
+          cd /home/runner/Wolvesville-windows-latest
+          zip -r "/home/runner/Wolvesville-windows-x86_64.zip" .
+
+      - name: Download Windows ARM64 Build
+        uses: actions/download-artifact@main
+        with:
+          name: Wolvesville-windows-11-arm
+          path: /home/runner/windowsBuild-x86_64
+
+      - name: Zip Windows x86_64 Build For Release
+        run: |
+          cd /home/runner/Wolvesville-windows-11-arm
+          zip -r "/home/runner/Wolvesville-windows-arm64.zip" .
+
+      - name: Publish The Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "1.0.0"
+          tag_name: "1.0.0"
+          prerelease: false
+          files: |
+            /home/runner/*.tar
+            /home/runner/*.zip
