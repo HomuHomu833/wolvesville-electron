@@ -13,3 +13,11 @@ yarn-error.log
 *.swp
 
 out/
+
+# native addon build output (compiled per-platform by node-gyp)
+native/discord/build/
+
+# Discord Social SDK — fetched at build time, never committed
+native/discord/include/
+native/discord/lib/
+native/discord/*.tar.gz

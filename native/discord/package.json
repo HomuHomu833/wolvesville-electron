@@ -1,0 +1,17 @@
+{
+  "name": "discord-addon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "N-API binding for the Discord Social SDK used by the Wolvesville desktop app.",
+  "main": "index.js",
+  "gypfile": true,
+  "scripts": {
+    "install": "node scripts/fetch-sdk.mjs && node-gyp rebuild"
+  },
+  "dependencies": {
+    "node-addon-api": "^8.3.0"
+  },
+  "devDependencies": {
+    "node-gyp": "^11.0.0"
+  }
+}
