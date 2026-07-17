@@ -70,30 +70,6 @@ const createWindow = () => {
 
   win.loadURL('https://www.wolvesville.com');
 
-  // Inject window.steam as a dynamic getter: true so the web app enables desktop
-  // mode (exit button, Discord), but false when the caller is purchase/billing
-  // code so those fall back to the working web checkout instead of the (broken,
-  // no steamId) Steam flow. Heuristic — matches the site's minified call stack.
-  // The exit button + desktop UI read the flag through the site's named
-  // isSteam() function; the purchase handler reads window.steam directly
-  // (const {steam}=window). So: true only when isSteam() is the caller (keeps
-  // exit + desktop UI), false otherwise -> the purchase takes the Paddle web
-  // checkout. Discord's detector also reads directly, so Discord is off here.
-  const STEAM_FLAG = `
-    (() => {
-      try {
-        Object.defineProperty(window, 'steam', {
-          configurable: true,
-          get() {
-            try { if (/isSteam/.test(new Error().stack || '')) return true; } catch (e) {}
-            return false;
-          },
-        });
-      } catch (e) {}
-    })();
-  `;
-  win.webContents.on('dom-ready', () => win.webContents.executeJavaScript(STEAM_FLAG).catch(() => {}));
-
   win.once('ready-to-show', () => win.show());
 
   win.webContents.on('before-input-event', (event, input) => {

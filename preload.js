@@ -1,12 +1,18 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-// window.steam is injected as a dynamic getter from the main process (see main.js)
-// so it can read false for purchase/billing code while staying true elsewhere.
+// Placeholder Steam ID so the Steam purchase request is well-formed. The account
+// the reward goes to is determined by the logged-in session, not this id; it just
+// stops the backend rejecting an empty steamId. Experimental.
+const STEAM_ID = '76561198000000000';
 
 const Status = { Disconnected: 0, Connecting: 1, Connected: 2, Ready: 3, Reconnecting: 4 };
 const Platform = { Desktop: 1, Xbox: 2, Samsung: 4, iOS: 8, Android: 16, Embedded: 32, PS4: 64, PS5: 128 };
 
 process.once('loaded', () => {
+  // Enables the web app's desktop mode: exit button, Discord, purchases.
+  contextBridge.exposeInMainWorld('steam', true);
+  contextBridge.exposeInMainWorld('steamId', STEAM_ID);
+
   contextBridge.exposeInMainWorld('sendSteamIpc', ({ action, payload }) => {
     if (action === 'EXIT_GAME') {
       ipcRenderer.send('EXIT_GAME');
