@@ -96,6 +96,11 @@ const createWindow = () => {
     } else if (input.key === 'F11') {
       win.setFullScreen(!win.isFullScreen());
       event.preventDefault();
+    } else if (input.key === 'F5' || (input.control && input.key.toLowerCase() === 'r')) {
+      const force = input.shift || (input.key === 'F5' && input.control);
+      if (force) win.webContents.reloadIgnoringCache();
+      else win.webContents.reload();
+      event.preventDefault();
     }
   });
 
