@@ -15,15 +15,12 @@ process.once('loaded', () => {
     }
   });
 
-  // Temporary debug: log to the renderer console (F12) when the site drives Discord.
-  const dbg = (...a) => console.log('[wv-discord]', ...a);
-
   contextBridge.exposeInMainWorld('discord', {
     Platform,
     Status,
 
-    updatePresence: (presence) => { dbg('updatePresence', presence); return ipcRenderer.send('UPDATE_DISCORD_PRESENCE', presence); },
-    sendInvite: (userId, message) => { dbg('sendInvite', userId); return ipcRenderer.invoke('DISCORD_SEND_INVITE', { userId, message }); },
+    updatePresence: (presence) => ipcRenderer.send('UPDATE_DISCORD_PRESENCE', presence),
+    sendInvite: (userId, message) => ipcRenderer.invoke('DISCORD_SEND_INVITE', { userId, message }),
 
     onActivityJoin: (cb) => { const h = (e, data) => cb(data); ipcRenderer.on('DISCORD_ACTIVITY_JOIN', h); return () => ipcRenderer.removeListener('DISCORD_ACTIVITY_JOIN', h); },
     onStatusChanged: (cb) => { const h = (e, data) => cb(data); ipcRenderer.on('DISCORD_STATUS_CHANGED', h); return () => ipcRenderer.removeListener('DISCORD_STATUS_CHANGED', h); },
@@ -33,9 +30,7 @@ process.once('loaded', () => {
     getStatus: () => ipcRenderer.invoke('DISCORD_GET_STATUS'),
     getRelationships: () => ipcRenderer.invoke('DISCORD_GET_RELATIONSHIPS'),
 
-    connect: () => { dbg('connect'); return ipcRenderer.invoke('DISCORD_CONNECT'); },
-    updateToken: (token) => { dbg('updateToken', typeof token === 'string' ? '(token len ' + token.length + ')' : token); return ipcRenderer.invoke('DISCORD_UPDATE_TOKEN', token); },
+    connect: () => ipcRenderer.invoke('DISCORD_CONNECT'),
+    updateToken: (token) => ipcRenderer.invoke('DISCORD_UPDATE_TOKEN', token),
   });
-
-  dbg('bridge ready; window.steam =', true);
 })

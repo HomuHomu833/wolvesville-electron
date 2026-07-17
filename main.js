@@ -40,12 +40,6 @@ const sendToWindow = (channel, ...args) => {
   if (win && !win.isDestroyed()) win.webContents.send(channel, ...args);
 };
 
-// Temporary debug: log a line into the renderer console (F12).
-const logToRenderer = (msg) => {
-  const win = mainWindow && !mainWindow.isDestroyed() ? mainWindow : null;
-  if (win) win.webContents.executeJavaScript(`console.log(${JSON.stringify('[wv-discord] ' + msg)})`).catch(() => {});
-};
-
 const focusMainWindow = () => {
   if (!mainWindow || mainWindow.isDestroyed()) return;
   if (mainWindow.isMinimized()) mainWindow.restore();
@@ -75,16 +69,6 @@ const createWindow = () => {
   });
 
   win.loadURL('https://www.wolvesville.com');
-
-  // Temporary debug: report Discord state into the renderer console (F12), since
-  // main-process console logs aren't visible there.
-  win.webContents.on('did-finish-load', () => {
-    let status = 'n/a';
-    try { status = String(discord.getStatus()); } catch (e) { status = 'err:' + e.message; }
-    win.webContents
-      .executeJavaScript(`console.log('[wv-discord] main: initialized=${discordInitialized} status=${status} (0=Disconnected 1=Connecting 2=Connected 3=Ready)')`)
-      .catch(() => {});
-  });
 
   win.once('ready-to-show', () => win.show());
 
@@ -191,18 +175,6 @@ if (!gotTheLock) {
     }
   }, 1000 / 30);
 
-  // Temporary debug: report Discord status transitions into F12.
-  let lastStatus = null;
-  setInterval(() => {
-    if (!discordInitialized) return;
-    let s;
-    try { s = discord.getStatus(); } catch (e) { s = 'err:' + e.message; }
-    if (s !== lastStatus) {
-      lastStatus = s;
-      logToRenderer('status -> ' + s + ' (0=Disconnected 1=Connecting 2=Connected 3=Ready)');
-    }
-  }, 1000);
-
   app.whenReady().then(() => {
     Menu.setApplicationMenu(null);
     createWindow();
@@ -269,8 +241,8 @@ if (!gotTheLock) {
       if (!discordInitialized) return NOT_INITIALIZED();
       return new Promise((resolve, reject) => {
         discord.updateToken(token, (err) => {
-          if (err) { logToRenderer('updateToken FAILED: ' + err); reject(new Error(err)); }
-          else { logToRenderer('updateToken OK'); resolve(); }
+          if (err) reject(new Error(err));
+          else resolve();
         });
       });
     });
