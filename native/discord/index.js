@@ -1,7 +1,3 @@
-// Electron entry point for the inlined Discord Social SDK addon.
-// Loads the compiled native addon. Falls back to no-ops if loading
-// fails (e.g. during CI on a platform without the SDK binaries).
-
 let discord;
 
 try {

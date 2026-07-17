@@ -3,15 +3,12 @@ const { join } = require('path');
 const os = require('os');
 const config = require('./config.js');
 
-// Quit immediately when launched by the Squirrel.Windows installer/updater.
-// Without this it briefly opens stray windows while creating shortcuts, etc.
+// Quit if launched by the Squirrel installer (avoids stray windows on setup).
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-// Only allow one running instance. A second launch (Discord "launch game", a
-// double click, an auto-update relaunch) would otherwise spawn a full copy of
-// the window — the duplicates you saw in Alt+Tab. Focus the existing one instead.
+// Single instance: a second launch just focuses the existing window.
 const gotTheLock = app.requestSingleInstanceLock();
 
 const isWindows = os.platform() === 'win32';
@@ -57,7 +54,7 @@ const createWindow = () => {
     height: 720,
     title: 'Wolvesville',
     fullscreen: true,
-    show: false, // shown on 'ready-to-show' to avoid a white flash on startup
+    show: false, // shown on ready-to-show, avoids white flash
     backgroundColor: '#111111',
     icon: join(__dirname, 'src', 'icons', isWindows ? 'icon.ico' : 'icon.icns'),
     autoHideMenuBar: true,
@@ -67,7 +64,7 @@ const createWindow = () => {
       nodeIntegration: false,
       sandbox: true,
       webSecurity: true,
-      spellcheck: false, // game UI, no text editing — saves memory
+      spellcheck: false,
       backgroundThrottling: true,
     },
   });
@@ -77,10 +74,8 @@ const createWindow = () => {
   win.once('ready-to-show', () => win.show());
 
   // added by Homura Akemi (HomuHomu833)
-  // Keep external links out of the app: open them in the system browser instead
-  // of spawning another Electron window. Only genuine wolvesville.com popups get
-  // an in-app window, and it's parented to the main one so it can't pile up in
-  // Alt+Tab and closes with the app.
+  // External links open in the system browser; only wolvesville.com popups get a
+  // parented in-app window (so they can't pile up in Alt+Tab).
   win.webContents.setWindowOpenHandler(({ url }) => {
     let host = '';
     try {
@@ -128,7 +123,6 @@ const registerDiscordCallback = (setter, channel) => {
   }
 };
 
-// A second instance couldn't grab the lock — hand focus to the first and quit.
 if (!gotTheLock) {
   app.quit();
 } else {
@@ -167,8 +161,7 @@ if (!gotTheLock) {
       app.exit();
     });
 
-    // Uniform error contract: send-style handlers are no-ops when uninitialized;
-    // invoke-style handlers reject with a stable error so callers can detect it.
+    // invoke handlers reject with a stable error when Discord isn't initialized.
     const NOT_INITIALIZED = () => Promise.reject(new Error('DISCORD_NOT_INITIALIZED'));
 
     ipcMain.on('UPDATE_DISCORD_PRESENCE', (event, presence) => {
@@ -183,10 +176,7 @@ if (!gotTheLock) {
     ipcMain.handle('DISCORD_SEND_INVITE', (event, { userId, message }) => {
       if (!discordInitialized) return NOT_INITIALIZED();
       try {
-        const status = discord.getStatus();
-        const result = discord.sendInvite(userId, message);
-        //console.log(`Discord sendInvite: status=${status} userId=${userId} result=${result}`);
-        return result;
+        return discord.sendInvite(userId, message);
       } catch (e) {
         console.error('Discord sendInvite failed:', e.message);
         throw e;
@@ -228,8 +218,7 @@ if (!gotTheLock) {
           return false;
         }
       }
-      // Retry full init if we failed at startup.
-      return initDiscord();
+      return initDiscord(); // retry init if it failed at startup
     });
   });
 }

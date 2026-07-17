@@ -13,7 +13,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Discord Social SDK has libs for these — build the native addon.
           - os: ubuntu-latest
             discord: true
           - os: macos-26
@@ -22,8 +21,6 @@ jobs:
             discord: true
           - os: windows-2022
             discord: true
-          # No SDK libs for arm64 Windows/Linux — build without Discord.
-          # index.js falls back to no-op Discord when the addon is absent.
           - os: ubuntu-24.04-arm
             discord: false
           - os: windows-11-arm

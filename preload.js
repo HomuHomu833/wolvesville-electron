@@ -1,7 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Discord SDK enum constants — inlined to avoid loading the native addon in the sandboxed preload.
-// Values must match the Discord Social SDK headers (native/discord/include/). Update when bumping the SDK.
+// Discord SDK enums, inlined (the sandboxed preload can't load the native addon).
 const Status = { Disconnected: 0, Connecting: 1, Connected: 2, Ready: 3, Reconnecting: 4 };
 const Platform = { Desktop: 1, Xbox: 2, Samsung: 4, iOS: 8, Android: 16, Embedded: 32, PS4: 64, PS5: 128 };
 

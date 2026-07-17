@@ -1,12 +1,6 @@
 // N-API binding for the Discord Social SDK (discordpp), reconstructed to match
 // the JS surface used by main.js / preload.js. Built with node-addon-api, so the
 // resulting .node is ABI-stable N-API and loads in Electron without a rebuild.
-//
-// Threading note: the Discord SDK invokes all of its callbacks synchronously
-// from within discordpp::RunCallbacks(). main.js drives that on the main thread
-// via setInterval, so every SDK callback also runs on the main thread with a
-// live HandleScope. That means we can call back into JS directly and never need
-// a ThreadSafeFunction here.
 
 #include <napi.h>
 #include <cstdint>
@@ -14,8 +8,7 @@
 #include <optional>
 #include <string>
 
-// discordpp.h is a single-header SDK: exactly one translation unit must define
-// DISCORDPP_IMPLEMENTATION to emit the method bodies. This is that unit.
+// Single-header SDK: one TU must define this to emit the method bodies.
 #define DISCORDPP_IMPLEMENTATION
 #include "discordpp.h"
 
@@ -24,8 +17,7 @@ namespace {
 std::shared_ptr<discordpp::Client> g_client;
 bool g_authed = false;
 
-// Persistent references to the JS callbacks the game registers. They are invoked
-// from inside RunCallbacks(), i.e. on the main thread.
+// JS callbacks, invoked from RunCallbacks() on the main thread.
 Napi::FunctionReference g_onStatusChanged;
 Napi::FunctionReference g_onActivityJoin;
 Napi::FunctionReference g_onTokenExpired;
@@ -64,11 +56,9 @@ void SafeCall(Napi::FunctionReference& ref, const std::initializer_list<napi_val
   try {
     ref.Call(args);
   } catch (const Napi::Error&) {
-    // Swallow JS errors so they never unwind into the SDK's C++ frames.
+    // Never let a JS error unwind into the SDK's C++ frames.
   }
 }
-
-// ---- Exposed functions ------------------------------------------------------
 
 Napi::Value Initialize(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
@@ -249,7 +239,7 @@ Napi::Value SetTokenExpirationCallback(const Napi::CallbackInfo& info) {
   return Napi::Boolean::New(env, true);
 }
 
-// updateToken(token, cb) — cb is a Node-style (err) callback, matching main.js.
+// cb is a Node-style (err) callback.
 Napi::Value UpdateToken(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   if (info.Length() < 1 || !info[0].IsString()) {

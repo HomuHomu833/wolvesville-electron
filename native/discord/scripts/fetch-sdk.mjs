@@ -1,13 +1,6 @@
 // Fetches the Discord Social SDK (headers + platform libraries) at build time so
 // the proprietary binaries never live in the git tree. Idempotent: skips if the
 // SDK is already present.
-//
-// Source resolution order:
-//   1. DISCORD_SDK_URL  -> direct download (curl)
-//   2. a GitHub release asset (gh release download)
-//
-// Configure via env: DISCORD_SDK_URL, DISCORD_SDK_REPO, DISCORD_SDK_TAG,
-// DISCORD_SDK_ASSET.
 
 import { existsSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -37,7 +30,7 @@ try {
   } else {
     run('gh', ['release', 'download', TAG, '--repo', REPO, '--pattern', ASSET, '--output', ASSET, '--clobber']);
   }
-  run('tar', ['-xzf', ASSET]); // relative path + cwd avoids Windows "C:" drive parsing
+  run('tar', ['-xzf', ASSET]);
   rmSync(join(root, ASSET), { force: true });
   console.log('Discord SDK ready.');
 } catch (e) {
