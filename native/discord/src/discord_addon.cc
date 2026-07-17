@@ -63,7 +63,7 @@ void SafeCall(Napi::FunctionReference& ref, const std::initializer_list<napi_val
   if (ref.IsEmpty()) return;
   try {
     ref.Call(args);
-  } catch (const Napi::Error& e) {
+  } catch (const Napi::Error&) {
     // Swallow JS errors so they never unwind into the SDK's C++ frames.
   }
 }
