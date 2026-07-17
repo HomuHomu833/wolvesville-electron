@@ -74,15 +74,19 @@ const createWindow = () => {
   // mode (exit button, Discord), but false when the caller is purchase/billing
   // code so those fall back to the working web checkout instead of the (broken,
   // no steamId) Steam flow. Heuristic — matches the site's minified call stack.
+  // The exit button + desktop UI read the flag through the site's named
+  // isSteam() function; the purchase handler reads window.steam directly
+  // (const {steam}=window). So: true only when isSteam() is the caller (keeps
+  // exit + desktop UI), false otherwise -> the purchase takes the Paddle web
+  // checkout. Discord's detector also reads directly, so Discord is off here.
   const STEAM_FLAG = `
     (() => {
-      const WEB = /initSteamPurchase|initPurchase|[Pp]urchase|[Ss]ubscription|[Bb]illing|[Pp]addle|[Cc]heckout/;
       try {
         Object.defineProperty(window, 'steam', {
           configurable: true,
           get() {
-            try { if (WEB.test(new Error().stack || '')) return false; } catch (e) {}
-            return true;
+            try { if (/isSteam/.test(new Error().stack || '')) return true; } catch (e) {}
+            return false;
           },
         });
       } catch (e) {}
