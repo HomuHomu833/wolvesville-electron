@@ -6,7 +6,7 @@
   "main": "index.js",
   "gypfile": true,
   "scripts": {
-    "install": "node scripts/fetch-sdk.mjs && node scripts/build.mjs"
+    "install": "node scripts/fetch-sdk.mjs && node-gyp rebuild"
   },
   "dependencies": {
     "node-addon-api": "^8.3.0"

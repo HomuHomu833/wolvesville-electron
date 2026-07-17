@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-2022]
+        os: [ubuntu-latest, macos-26, macos-15-intel, windows-2022]
     steps:
       - name: Checkout
         uses: actions/checkout@main
@@ -31,18 +31,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Package
-        if: runner.os != 'macOS'
         run: npm run package
-
-      - name: Build Package (macOS universal)
-        if: runner.os == 'macOS'
-        run: npx electron-forge package --arch universal
 
       - name: Apply Entitlements (macOS)
         if: runner.os == 'macOS'
         run: |
           brew install ldid
-          bash ./scripts/mac-sign.sh out/Wolvesville-darwin-universal/Wolvesville.app entitlements.plist
+          bash ./scripts/mac-sign.sh out/Wolvesville-darwin-*/Wolvesville.app entitlements.plist
 
       - name: Upload Artifact
         uses: actions/upload-artifact@main
