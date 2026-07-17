@@ -70,6 +70,16 @@ const createWindow = () => {
 
   win.loadURL('https://www.wolvesville.com');
 
+  // Temporary debug: report Discord state into the renderer console (F12), since
+  // main-process console logs aren't visible there.
+  win.webContents.on('did-finish-load', () => {
+    let status = 'n/a';
+    try { status = String(discord.getStatus()); } catch (e) { status = 'err:' + e.message; }
+    win.webContents
+      .executeJavaScript(`console.log('[wv-discord] main: initialized=${discordInitialized} status=${status} (0=Disconnected 1=Connecting 2=Connected 3=Ready)')`)
+      .catch(() => {});
+  });
+
   win.once('ready-to-show', () => win.show());
 
   win.webContents.on('before-input-event', (event, input) => {
