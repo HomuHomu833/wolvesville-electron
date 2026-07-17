@@ -70,6 +70,22 @@ const createWindow = () => {
 
   win.loadURL('https://www.wolvesville.com');
 
+  // Backup for the preload's window.steam/Paddle patch, in case it lands late.
+  // Idempotent (guarded by window.__wvSteamPatched).
+  const STEAM_PATCH = `(() => {
+    if (window.__wvSteamPatched) return;
+    window.__wvSteamPatched = true;
+    try {
+      let paddleRead = false, realPaddle = window.Paddle;
+      Object.defineProperty(window, 'Paddle', { configurable: true,
+        get() { paddleRead = true; queueMicrotask(() => { paddleRead = false; }); return realPaddle; },
+        set(v) { realPaddle = v; } });
+      Object.defineProperty(window, 'steam', { configurable: true,
+        get() { if (paddleRead) { paddleRead = false; return false; } return true; } });
+    } catch (e) {}
+  })();`;
+  win.webContents.on('dom-ready', () => win.webContents.executeJavaScript(STEAM_PATCH).catch(() => {}));
+
   win.once('ready-to-show', () => win.show());
 
   win.webContents.on('before-input-event', (event, input) => {

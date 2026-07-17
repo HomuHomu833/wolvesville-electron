@@ -1,12 +1,40 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
+// Patch injected into the page's MAIN world at document-start. window.steam reads
+// true everywhere (desktop mode: exit button + Discord) EXCEPT the purchase
+// handler, which does `const {Paddle, steam} = window` — reading window.Paddle
+// first flips a one-shot flag so the very next window.steam read returns false.
+// That sends purchases down the Paddle web-checkout path instead of the Steam one
+// (which needs a real steamId we don't have), without disturbing Discord/exit.
+const STEAM_PATCH = `(() => {
+  if (window.__wvSteamPatched) return;
+  window.__wvSteamPatched = true;
+  try {
+    let paddleRead = false, realPaddle = window.Paddle;
+    Object.defineProperty(window, 'Paddle', {
+      configurable: true,
+      get() { paddleRead = true; queueMicrotask(() => { paddleRead = false; }); return realPaddle; },
+      set(v) { realPaddle = v; },
+    });
+    Object.defineProperty(window, 'steam', {
+      configurable: true,
+      get() { if (paddleRead) { paddleRead = false; return false; } return true; },
+    });
+  } catch (e) {}
+})();`;
+
+// Run it as early as possible (before the site's scripts) via a main-world script.
+try {
+  const s = document.createElement('script');
+  s.textContent = STEAM_PATCH;
+  (document.documentElement || document.head || document.body).appendChild(s);
+  s.remove();
+} catch (e) {}
+
 const Status = { Disconnected: 0, Connecting: 1, Connected: 2, Ready: 3, Reconnecting: 4 };
 const Platform = { Desktop: 1, Xbox: 2, Samsung: 4, iOS: 8, Android: 16, Embedded: 32, PS4: 64, PS5: 128 };
 
 process.once('loaded', () => {
-  // Enables the web app's desktop mode: exit button, Discord.
-  contextBridge.exposeInMainWorld('steam', true);
-
   contextBridge.exposeInMainWorld('sendSteamIpc', ({ action, payload }) => {
     if (action === 'EXIT_GAME') {
       ipcRenderer.send('EXIT_GAME');
