@@ -6,7 +6,6 @@ module.exports = {
     icon: './src/icons/icon',
     name: 'Wolvesville',
     ignore: [
-      /node_modules\/(?!(electron-squirrel-startup))/,
       /\.yarn/,
       /\.idea/,
       /\.git/,
