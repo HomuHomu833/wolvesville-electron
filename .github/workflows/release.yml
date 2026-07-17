@@ -49,7 +49,7 @@ jobs:
       - name: Download Windows x86_64 Build
         uses: actions/download-artifact@main
         with:
-          name: Wolvesville-windows-latest
+          name: Wolvesville-windows-2022
           path: /home/runner
 
       - name: Zip Windows x86_64 Build For Release
