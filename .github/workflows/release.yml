@@ -82,8 +82,8 @@ jobs:
       - name: Publish The Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "1.0.0"
-          tag_name: "1.0.0"
+          name: "1.1.0"
+          tag_name: "1.1.0"
           prerelease: false
           files: |
             /home/runner/*.tar
