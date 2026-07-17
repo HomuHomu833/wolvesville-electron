@@ -8,7 +8,6 @@
 #include <optional>
 #include <string>
 
-// Single-header SDK: one TU must define this to emit the method bodies.
 #define DISCORDPP_IMPLEMENTATION
 #include "discordpp.h"
 
@@ -17,12 +16,10 @@ namespace {
 std::shared_ptr<discordpp::Client> g_client;
 bool g_authed = false;
 
-// JS callbacks, invoked from RunCallbacks() on the main thread.
 Napi::FunctionReference g_onStatusChanged;
 Napi::FunctionReference g_onActivityJoin;
 Napi::FunctionReference g_onTokenExpired;
 
-// Discord snowflake IDs exceed 2^53, so they arrive/leave as strings.
 uint64_t ToU64(const Napi::Value& v) {
   if (v.IsString()) {
     try {
@@ -116,7 +113,6 @@ Napi::Value UpdatePresence(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   if (!g_client) return Napi::Boolean::New(env, false);
   if (info.Length() < 1 || !info[0].IsObject()) {
-    // Empty presence clears rich presence.
     g_client->UpdateRichPresence(discordpp::Activity{}, [](discordpp::ClientResult) {});
     return Napi::Boolean::New(env, true);
   }
@@ -154,7 +150,6 @@ Napi::Value UpdatePresence(const Napi::CallbackInfo& info) {
     Napi::Object pt = p.Get("party").As<Napi::Object>();
     discordpp::ActivityParty party;
     if (HasString(pt, "id")) party.SetId(GetString(pt, "id"));
-    // Accept either {size:[cur,max]} or {currentSize,maxSize}.
     if (pt.Has("size") && pt.Get("size").IsArray()) {
       Napi::Array sz = pt.Get("size").As<Napi::Array>();
       if (sz.Length() >= 1 && sz.Get((uint32_t)0).IsNumber())
@@ -239,7 +234,6 @@ Napi::Value SetTokenExpirationCallback(const Napi::CallbackInfo& info) {
   return Napi::Boolean::New(env, true);
 }
 
-// cb is a Node-style (err) callback.
 Napi::Value UpdateToken(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   if (info.Length() < 1 || !info[0].IsString()) {

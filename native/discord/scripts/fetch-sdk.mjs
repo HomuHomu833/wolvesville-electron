@@ -1,7 +1,3 @@
-// Fetches the Discord Social SDK (headers + platform libraries) at build time so
-// the proprietary binaries never live in the git tree. Idempotent: skips if the
-// SDK is already present.
-
 import { existsSync, rmSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';

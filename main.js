@@ -3,12 +3,10 @@ const { join } = require('path');
 const os = require('os');
 const config = require('./config.js');
 
-// Quit if launched by the Squirrel installer (avoids stray windows on setup).
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-// Single instance: a second launch just focuses the existing window.
 const gotTheLock = app.requestSingleInstanceLock();
 
 const isWindows = os.platform() === 'win32';
@@ -54,7 +52,7 @@ const createWindow = () => {
     height: 720,
     title: 'Wolvesville',
     fullscreen: true,
-    show: false, // shown on ready-to-show, avoids white flash
+    show: false,
     backgroundColor: '#111111',
     icon: join(__dirname, 'src', 'icons', isWindows ? 'icon.ico' : 'icon.icns'),
     autoHideMenuBar: true,
@@ -74,8 +72,6 @@ const createWindow = () => {
   win.once('ready-to-show', () => win.show());
 
   // added by Homura Akemi (HomuHomu833)
-  // External links open in the system browser; only wolvesville.com popups get a
-  // parented in-app window (so they can't pile up in Alt+Tab).
   win.webContents.setWindowOpenHandler(({ url }) => {
     let host = '';
     try {
@@ -161,7 +157,6 @@ if (!gotTheLock) {
       app.exit();
     });
 
-    // invoke handlers reject with a stable error when Discord isn't initialized.
     const NOT_INITIALIZED = () => Promise.reject(new Error('DISCORD_NOT_INITIALIZED'));
 
     ipcMain.on('UPDATE_DISCORD_PRESENCE', (event, presence) => {
