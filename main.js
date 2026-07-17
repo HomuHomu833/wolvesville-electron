@@ -40,6 +40,12 @@ const sendToWindow = (channel, ...args) => {
   if (win && !win.isDestroyed()) win.webContents.send(channel, ...args);
 };
 
+// Temporary debug: log a line into the renderer console (F12).
+const logToRenderer = (msg) => {
+  const win = mainWindow && !mainWindow.isDestroyed() ? mainWindow : null;
+  if (win) win.webContents.executeJavaScript(`console.log(${JSON.stringify('[wv-discord] ' + msg)})`).catch(() => {});
+};
+
 const focusMainWindow = () => {
   if (!mainWindow || mainWindow.isDestroyed()) return;
   if (mainWindow.isMinimized()) mainWindow.restore();
@@ -180,6 +186,18 @@ if (!gotTheLock) {
     }
   }, 1000 / 30);
 
+  // Temporary debug: report Discord status transitions into F12.
+  let lastStatus = null;
+  setInterval(() => {
+    if (!discordInitialized) return;
+    let s;
+    try { s = discord.getStatus(); } catch (e) { s = 'err:' + e.message; }
+    if (s !== lastStatus) {
+      lastStatus = s;
+      logToRenderer('status -> ' + s + ' (0=Disconnected 1=Connecting 2=Connected 3=Ready)');
+    }
+  }, 1000);
+
   app.whenReady().then(() => {
     Menu.setApplicationMenu(null);
     createWindow();
@@ -246,8 +264,8 @@ if (!gotTheLock) {
       if (!discordInitialized) return NOT_INITIALIZED();
       return new Promise((resolve, reject) => {
         discord.updateToken(token, (err) => {
-          if (err) reject(new Error(err));
-          else resolve();
+          if (err) { logToRenderer('updateToken FAILED: ' + err); reject(new Error(err)); }
+          else { logToRenderer('updateToken OK'); resolve(); }
         });
       });
     });
