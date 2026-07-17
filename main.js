@@ -76,10 +76,30 @@ const createWindow = () => {
     if (window.__wvSteamPatched) return;
     window.__wvSteamPatched = true;
     try {
-      let paddleRead = false, realPaddle = window.Paddle;
+      let paddleRead = false, realPaddle, completed = false;
+      const wrap = (p) => {
+        if (!p || p.__wvWrapped || typeof p.Initialize !== 'function') return p;
+        p.__wvWrapped = true;
+        const origInit = p.Initialize.bind(p);
+        p.Initialize = (opts) => {
+          const orig = opts && opts.eventCallback;
+          return origInit(Object.assign({}, opts, {
+            eventCallback: (ev) => {
+              try {
+                const n = (ev && ev.name) || '';
+                if (n.indexOf('completed') !== -1) completed = true;
+                if (n.indexOf('closed') !== -1) { if (!completed) setTimeout(() => location.reload(), 150); completed = false; }
+              } catch (e) {}
+              if (typeof orig === 'function') orig(ev);
+            },
+          }));
+        };
+        return p;
+      };
+      realPaddle = wrap(window.Paddle);
       Object.defineProperty(window, 'Paddle', { configurable: true,
         get() { paddleRead = true; queueMicrotask(() => { paddleRead = false; }); return realPaddle; },
-        set(v) { realPaddle = v; } });
+        set(v) { realPaddle = wrap(v); } });
       Object.defineProperty(window, 'steam', { configurable: true,
         get() { if (paddleRead) { paddleRead = false; return false; } return true; } });
     } catch (e) {}
