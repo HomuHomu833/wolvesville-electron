@@ -104,7 +104,7 @@ const createWindow = () => {
   });
 
   // added by Homura Akemi (HomuHomu833)
-  win.webContents.setWindowOpenHandler(({ url }) => {
+  win.webContents.setWindowOpenHandler(({ url, disposition }) => {
     let host = '';
     try {
       host = new URL(url).hostname;
@@ -113,12 +113,21 @@ const createWindow = () => {
     }
 
     const isWolvesville = host === 'wolvesville.com' || host.endsWith('.wolvesville.com');
-    if (!isWolvesville) {
+    // Sign-in / checkout providers must open in-app so their popup can talk back
+    // to the opener (window.opener / postMessage) and complete the flow.
+    const isAuthOrPay = /(?:^|\.)(?:google|gstatic|googleapis|apple|appleid|discord|discordapp|facebook|paddle)\.com$/.test(host);
+    const isLinkClick = disposition === 'foreground-tab' || disposition === 'background-tab';
+
+    // Plain external link clicks open in the system browser; popups (sign-in,
+    // checkout) and wolvesville.com windows stay in-app.
+    if (!isWolvesville && !isAuthOrPay && isLinkClick) {
       shell.openExternal(url);
       return { action: 'deny' };
     }
 
-    if (popupWindow && !popupWindow.isDestroyed()) {
+    // Reuse one window only for wolvesville.com popups (Alt+Tab clone fix).
+    // Auth/checkout popups get a fresh window so window.opener stays intact.
+    if (isWolvesville && popupWindow && !popupWindow.isDestroyed()) {
       popupWindow.loadURL(url);
       popupWindow.focus();
       return { action: 'deny' };
