@@ -1,7 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-// expose a flag so Wolvesville treats this as a Steam build of Wolvesville.
-contextBridge.exposeInMainWorld('steam', true);
+// window.steam is injected as a dynamic getter from the main process (see main.js)
+// so it can read false for purchase/billing code while staying true elsewhere.
 
 const Status = { Disconnected: 0, Connecting: 1, Connected: 2, Ready: 3, Reconnecting: 4 };
 const Platform = { Desktop: 1, Xbox: 2, Samsung: 4, iOS: 8, Android: 16, Embedded: 32, PS4: 64, PS5: 128 };

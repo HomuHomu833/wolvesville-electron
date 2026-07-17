@@ -70,6 +70,26 @@ const createWindow = () => {
 
   win.loadURL('https://www.wolvesville.com');
 
+  // Inject window.steam as a dynamic getter: true so the web app enables desktop
+  // mode (exit button, Discord), but false when the caller is purchase/billing
+  // code so those fall back to the working web checkout instead of the (broken,
+  // no steamId) Steam flow. Heuristic — matches the site's minified call stack.
+  const STEAM_FLAG = `
+    (() => {
+      const WEB = /initSteamPurchase|initPurchase|[Pp]urchase|[Ss]ubscription|[Bb]illing|[Pp]addle|[Cc]heckout/;
+      try {
+        Object.defineProperty(window, 'steam', {
+          configurable: true,
+          get() {
+            try { if (WEB.test(new Error().stack || '')) return false; } catch (e) {}
+            return true;
+          },
+        });
+      } catch (e) {}
+    })();
+  `;
+  win.webContents.on('dom-ready', () => win.webContents.executeJavaScript(STEAM_FLAG).catch(() => {}));
+
   win.once('ready-to-show', () => win.show());
 
   win.webContents.on('before-input-event', (event, input) => {
