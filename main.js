@@ -72,6 +72,19 @@ const createWindow = () => {
 
   win.once('ready-to-show', () => win.show());
 
+  // We removed the app menu, so bind its shortcuts here: F12 / Ctrl+Shift+I
+  // toggle DevTools, F11 toggles fullscreen.
+  win.webContents.on('before-input-event', (event, input) => {
+    if (input.type !== 'keyDown') return;
+    if (input.key === 'F12' || (input.control && input.shift && input.key.toLowerCase() === 'i')) {
+      win.webContents.toggleDevTools();
+      event.preventDefault();
+    } else if (input.key === 'F11') {
+      win.setFullScreen(!win.isFullScreen());
+      event.preventDefault();
+    }
+  });
+
   // added by Homura Akemi (HomuHomu833)
   // External links open in the system browser. Same-origin popups reuse a single
   // window instead of spawning a new one each time (avoids the Alt+Tab clones).
