@@ -187,6 +187,10 @@ if (!gotTheLock) {
       app.exit();
     });
 
+    ipcMain.on('OPEN_URL', (event, url) => {
+      if (typeof url === 'string' && /^https?:\/\//.test(url)) shell.openExternal(url);
+    });
+
     const NOT_INITIALIZED = () => Promise.reject(new Error('DISCORD_NOT_INITIALIZED'));
 
     ipcMain.on('UPDATE_DISCORD_PRESENCE', (event, presence) => {

@@ -7,7 +7,14 @@ const Status = { Disconnected: 0, Connecting: 1, Connected: 2, Ready: 3, Reconne
 const Platform = { Desktop: 1, Xbox: 2, Samsung: 4, iOS: 8, Android: 16, Embedded: 32, PS4: 64, PS5: 128 };
 
 process.once('loaded', () => {
-  contextBridge.exposeInMainWorld('exitGame', () => ipcRenderer.send('EXIT_GAME'));
+  // The web app's desktop controls (e.g. the exit button) call this bridge.
+  contextBridge.exposeInMainWorld('sendSteamIpc', ({ action, payload }) => {
+    if (action === 'EXIT_GAME') {
+      ipcRenderer.send('EXIT_GAME');
+    } else if (action === 'OPEN_URL' && typeof payload === 'string') {
+      ipcRenderer.send('OPEN_URL', payload);
+    }
+  });
 
   contextBridge.exposeInMainWorld('discord', {
     Platform,
