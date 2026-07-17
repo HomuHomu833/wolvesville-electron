@@ -24,6 +24,17 @@ jobs:
           cd /home/runner/Wolvesville-linux-x64
           tar czf "/home/runner/Wolvesville-linux-x86_64.tar" .
 
+      - name: Download Linux ARM64 Build
+        uses: actions/download-artifact@main
+        with:
+          name: Wolvesville-ubuntu-24.04-arm
+          path: /home/runner
+
+      - name: Tar Linux ARM64 Build For Release
+        run: |
+          cd /home/runner/Wolvesville-linux-arm64
+          tar czf "/home/runner/Wolvesville-linux-arm64.tar" .
+
       - name: Download macOS x86_64 Build
         uses: actions/download-artifact@main
         with:
@@ -56,6 +67,17 @@ jobs:
         run: |
           cd /home/runner/Wolvesville-win32-x64
           zip -r "/home/runner/Wolvesville-windows-x86_64.zip" .
+
+      - name: Download Windows ARM64 Build
+        uses: actions/download-artifact@main
+        with:
+          name: Wolvesville-windows-11-arm
+          path: /home/runner
+
+      - name: Zip Windows ARM64 Build For Release
+        run: |
+          cd /home/runner/Wolvesville-win32-arm64
+          zip -r "/home/runner/Wolvesville-windows-arm64.zip" .
 
       - name: Publish The Release
         uses: softprops/action-gh-release@v2
