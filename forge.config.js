@@ -15,16 +15,8 @@ module.exports = {
       // The runtime only needs native/discord/build/Release/ and native/discord/index.js.
       /native\/discord\/(src|include|lib|scripts|node_modules|binding\.gyp|package\.json)/,
     ],
-    osxSign: {
-      optionsForFile: () => ({
-        entitlements: './entitlements.plist',
-      }),
-    },
-    osxNotarize: {
-      appleId: process.env.APPLE_ID,
-      appleIdPassword: process.env.APPLE_ID_PASSWORD,
-      teamId: process.env.APPLE_TEAM_ID,
-    },
+    // No Apple Developer signing/notarization for the community build — CI has no
+    // certs, so @electron/packager just ad-hoc signs (required for arm64 to run).
   },
   rebuildConfig: {},
   makers: [
