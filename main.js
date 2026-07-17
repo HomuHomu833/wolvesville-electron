@@ -21,6 +21,7 @@ const discord = require('./native/discord');
 let discordInitialized = false;
 let callbacksInterval = null;
 let mainWindow = null;
+let popupWindow = null;
 
 const initDiscord = () => {
   try {
@@ -72,6 +73,8 @@ const createWindow = () => {
   win.once('ready-to-show', () => win.show());
 
   // added by Homura Akemi (HomuHomu833)
+  // External links open in the system browser. Same-origin popups reuse a single
+  // window instead of spawning a new one each time (avoids the Alt+Tab clones).
   win.webContents.setWindowOpenHandler(({ url }) => {
     let host = '';
     try {
@@ -86,12 +89,19 @@ const createWindow = () => {
       return { action: 'deny' };
     }
 
+    if (popupWindow && !popupWindow.isDestroyed()) {
+      popupWindow.loadURL(url);
+      popupWindow.focus();
+      return { action: 'deny' };
+    }
+
     return {
       action: 'allow',
       overrideBrowserWindowOptions: {
         width: 800,
         height: 600,
         parent: win,
+        skipTaskbar: true,
         autoHideMenuBar: true,
         backgroundColor: '#111111',
         webPreferences: {
@@ -102,6 +112,13 @@ const createWindow = () => {
         },
       },
     };
+  });
+
+  win.webContents.on('did-create-window', (child) => {
+    popupWindow = child;
+    child.on('closed', () => {
+      if (popupWindow === child) popupWindow = null;
+    });
   });
 
   win.on('closed', () => {
